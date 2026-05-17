@@ -249,13 +249,13 @@ body {
 .tabs {
   display: flex;
   gap: 4px;
-  padding: 0 24px;
+  padding: 16px 24px;
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 9px 8px;
+  padding: 12px 8px;
   border-radius: 10px;
   font-size: 13px;
   font-family: 'Syne', sans-serif;
@@ -399,7 +399,7 @@ body {
 .card-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 14px;
 }
 
 .card-tag {
@@ -411,13 +411,12 @@ body {
   letter-spacing: 0.06em;
   padding: 3px 8px;
   border-radius: 6px;
-  margin-bottom: 6px;
   width: fit-content;
 }
 
 .project-card:nth-child(1) .card-tag { background: rgba(123,97,255,0.15); color: #a78bfa; }
 .project-card:nth-child(2) .card-tag { background: rgba(239, 68, 68, 0.18); color: #f87171; }
-.project-card:nth-child(3) .card-tag { background: rgba(200,240,101,0.15); color: #c8f065; }
+.project-card:nth-child(3) .card-tag { background: rgba(244,114,182,0.15); color: #f472b6; }
 .project-card:nth-child(4) .card-tag { background: rgba(100,200,255,0.15); color: #60c8ff; }
 .project-card:nth-child(5) .card-tag { background: rgba(232,121,249,0.15); color: #e879f9; }
 .project-card:nth-child(6) .card-tag { background: rgba(56,189,248,0.15); color: #38bdf8; }
@@ -582,7 +581,7 @@ body {
   body { padding: 60px 32px; }
   .card { max-width: 900px; border-radius: 32px; }
   .header { padding: 36px 36px 24px; }
-  .tabs  { padding: 0 36px; }
+  .tabs  { padding: 18px 36px; }
   .projects { padding: 16px 36px 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .contact-panel { padding: 16px 36px 36px; }
   .cta-row { margin-top: 20px; }
