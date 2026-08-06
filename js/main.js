@@ -56,6 +56,9 @@
       emailLabel: 'Email',
       emailPlaceholder: 'Your email',
       joinWaitlist: 'Join waitlist',
+      successTitle: "You're on the list!",
+      successSub: "We'll email you when Zaldo opens.",
+      joining: 'Joining…',
       tabProjects: 'Projects',
       tabContact: 'Contact',
       tagFintech: 'Fintech',
@@ -89,6 +92,9 @@
       emailLabel: 'Correo',
       emailPlaceholder: 'Tu correo',
       joinWaitlist: 'Unirme',
+      successTitle: '¡Estás en la lista!',
+      successSub: 'Te avisamos apenas Zaldo esté disponible.',
+      joining: 'Uniendo…',
       tabProjects: 'Proyectos',
       tabContact: 'Contacto',
       tagFintech: 'Fintech',
@@ -175,5 +181,149 @@
   });
 
   applyLanguage(currentLang);
+
+  /* ── Waitlist form + spots counter ── */
+  var waitlist = document.querySelector('.waitlist');
+  var waitlistForm = document.querySelector('.waitlist-form');
+  var spotsCountEl = document.querySelector('[data-spots-count]');
+  var spotsBar = document.querySelector('.waitlist-bar');
+  var spotsFill = document.querySelector('.waitlist-bar-fill');
+  var successPanel = document.querySelector('.waitlist-success');
+  var burstLayer = document.querySelector('.waitlist-burst');
+  var SPOTS_BASE = waitlist ? parseInt(waitlist.getAttribute('data-spots-base'), 10) || 51 : 51;
+  var SPOTS_MAX = waitlist ? parseInt(waitlist.getAttribute('data-spots-max'), 10) || 100 : 100;
+  var JOINED_KEY = 'zaldo-waitlist-joined';
+  var COUNT_KEY = 'zaldo-waitlist-count';
+
+  function readJoined() {
+    try { return localStorage.getItem(JOINED_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  function readCount() {
+    try {
+      var n = parseInt(localStorage.getItem(COUNT_KEY), 10);
+      if (!isNaN(n) && n >= SPOTS_BASE) return Math.min(n, SPOTS_MAX);
+    } catch (e) {}
+    return SPOTS_BASE;
+  }
+
+  function writeCount(n) {
+    try { localStorage.setItem(COUNT_KEY, String(n)); } catch (e) {}
+  }
+
+  function setSpots(n, animate) {
+    n = Math.max(0, Math.min(SPOTS_MAX, n));
+    var pct = (n / SPOTS_MAX) * 100;
+    if (spotsCountEl) {
+      if (animate && spotsCountEl.textContent !== String(n)) {
+        spotsCountEl.classList.remove('is-bump');
+        void spotsCountEl.offsetWidth;
+        spotsCountEl.classList.add('is-bump');
+      }
+      spotsCountEl.textContent = String(n);
+    }
+    if (spotsBar) spotsBar.setAttribute('aria-valuenow', String(n));
+    if (waitlist) waitlist.style.setProperty('--spots-pct', pct + '%');
+    if (spotsFill) spotsFill.style.width = pct + '%';
+  }
+
+  function spawnBurst() {
+    if (!burstLayer) return;
+    burstLayer.innerHTML = '';
+    var colors = ['#13e8d3', '#7ef5e8', '#ffffff', '#0bb8a8', '#a7fff4'];
+    for (var i = 0; i < 18; i++) {
+      var p = document.createElement('span');
+      var angle = (Math.PI * 2 * i) / 18;
+      var dist = 40 + Math.random() * 70;
+      p.style.setProperty('--x', 50 + Math.random() * 20 + '%');
+      p.style.setProperty('--y', 55 + Math.random() * 25 + '%');
+      p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+      p.style.setProperty('--c', colors[i % colors.length]);
+      p.style.animationDelay = (Math.random() * 0.12) + 's';
+      burstLayer.appendChild(p);
+    }
+    setTimeout(function () { burstLayer.innerHTML = ''; }, 1000);
+  }
+
+  function showSuccess(opts) {
+    if (!waitlist) return;
+    opts = opts || {};
+    var bump = !!opts.bump;
+    var celebrate = !!opts.celebrate;
+    var count = readCount();
+    if (bump && !readJoined()) {
+      count = Math.min(SPOTS_MAX, count + 1);
+      writeCount(count);
+      try { localStorage.setItem(JOINED_KEY, '1'); } catch (e) {}
+    }
+    setSpots(count, bump);
+    waitlist.classList.add('is-success');
+    waitlist.classList.remove('is-submitting');
+    if (successPanel) successPanel.hidden = false;
+    if (waitlistForm) waitlistForm.setAttribute('aria-hidden', 'true');
+    if (celebrate) spawnBurst();
+  }
+
+  function submitWaitlist(form) {
+    function post(action) {
+      var body = new FormData(form);
+      return fetch(action, {
+        method: 'POST',
+        body: body,
+        mode: 'cors',
+        credentials: 'omit',
+        headers: { Accept: 'application/json' }
+      }).catch(function () {
+        return fetch(action, { method: 'POST', body: body, mode: 'no-cors' });
+      });
+    }
+
+    var action = form.getAttribute('action');
+    if (action) return post(action);
+
+    return new Promise(function (resolve) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        tries += 1;
+        action = form.getAttribute('action');
+        if (action || tries >= 12) {
+          clearInterval(timer);
+          if (action) post(action).finally(resolve);
+          else resolve();
+        }
+      }, 150);
+    });
+  }
+
+  setSpots(readCount(), false);
+  if (readJoined()) {
+    showSuccess({ bump: false, celebrate: false });
+  }
+
+  if (waitlistForm) {
+    waitlistForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (readJoined() || waitlist.classList.contains('is-submitting')) return;
+
+      var email = waitlistForm.querySelector('input[type="email"]');
+      if (email && !email.checkValidity()) {
+        email.reportValidity();
+        return;
+      }
+
+      waitlist.classList.add('is-submitting');
+      var btn = waitlistForm.querySelector('button[type="submit"]');
+      var prevLabel = btn ? btn.textContent : '';
+      if (btn) {
+        btn.textContent = (translations[currentLang] || translations.es).joining;
+      }
+
+      submitWaitlist(waitlistForm).finally(function () {
+        if (btn) btn.textContent = prevLabel;
+        showSuccess({ bump: true, celebrate: true });
+      });
+    });
+  }
 
 })();

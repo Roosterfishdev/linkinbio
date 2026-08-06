@@ -44,7 +44,8 @@
       </a>
     </div>
 
-    <div class="waitlist reveal">
+    <div class="waitlist reveal" data-spots-base="51" data-spots-max="100">
+      <div class="waitlist-burst" aria-hidden="true"></div>
       <div class="waitlist-head">
         <img class="waitlist-logo" src="assets/Zaldo Icon.svg" alt="" width="36" height="36">
         <div class="waitlist-title-wrap">
@@ -53,7 +54,7 @@
       </div>
       <div class="waitlist-meta">
         <div class="waitlist-spots">
-          <p class="waitlist-count"><strong>51</strong><span data-i18n="spotsTaken"> / 100 cupos ocupados</span></p>
+          <p class="waitlist-count"><strong data-spots-count>51</strong><span data-i18n="spotsTaken"> / 100 cupos ocupados</span></p>
           <div class="waitlist-bar" role="progressbar" aria-valuenow="51" aria-valuemin="0" aria-valuemax="100" aria-label="Capacidad de la lista de espera" data-i18n-aria="waitlistAria">
             <div class="waitlist-bar-fill"></div>
           </div>
@@ -64,6 +65,15 @@
         <input id="waitlist-email" type="email" name="email" placeholder="Tu correo" required autocomplete="email" data-i18n-placeholder="emailPlaceholder">
         <button type="submit" data-i18n="joinWaitlist">Unirme</button>
       </form>
+      <div class="waitlist-success" hidden aria-live="polite">
+        <div class="waitlist-success-check" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="waitlist-success-copy">
+          <p class="waitlist-success-title" data-i18n="successTitle">¡Estás en la lista!</p>
+          <p class="waitlist-success-sub" data-i18n="successSub">Te avisamos apenas Zaldo esté disponible.</p>
+        </div>
+      </div>
     </div>
   </div>
 
